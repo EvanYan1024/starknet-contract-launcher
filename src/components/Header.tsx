@@ -13,7 +13,13 @@ const Header = () => {
   const handleConnect = async () => {
     try {
       setIsConnecting(true);
-      await connect();
+      await connect({
+        webWalletUrl: "https://web.argent.xyz",
+        argentMobileOptions: {
+          dappName: "Starknet Contract Deployer",
+          url: window.location.hostname,
+        },
+      });
     } catch (error) {
       console.error('Failed to connect wallet:', error);
     } finally {
