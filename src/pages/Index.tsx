@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { StarknetConfig, mainnet, sepolia } from '@starknet-react/core';
+import { StarknetConfig } from '@starknet-react/core';
 import { connect, disconnect } from 'starknetkit';
 import Header from '@/components/Header';
 import FileUpload from '@/components/FileUpload';
@@ -21,8 +21,8 @@ const Index = () => {
 
   return (
     <StarknetConfig
-      chains={[mainnet, sepolia]}
-      provider={() => {}}
+      chains={['mainnet', 'sepolia']}
+      provider={() => null}
     >
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Header />

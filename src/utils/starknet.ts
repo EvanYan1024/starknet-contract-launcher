@@ -84,7 +84,9 @@ export const deployContract = async (
     console.log('Deploy receipt:', receipt);
 
     return {
-      contractAddress: deployResponse.contract_address,
+      contractAddress: Array.isArray(deployResponse.contract_address) 
+        ? deployResponse.contract_address[0] 
+        : deployResponse.contract_address,
       transactionHash: deployResponse.transaction_hash
     };
   } catch (error: any) {
