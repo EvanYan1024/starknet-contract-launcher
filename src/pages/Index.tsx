@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { StarknetConfig } from '@starknet-react/core';
 import { constants } from 'starknet';
@@ -9,7 +8,7 @@ import { Contract } from '@/types/contract';
 
 const chains = [
   {
-    id: constants.StarknetChainId.SN_MAIN,
+    id: BigInt(constants.StarknetChainId.SN_MAIN),
     name: 'Mainnet',
     network: 'mainnet' as const,
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -19,7 +18,7 @@ const chains = [
     }
   },
   {
-    id: constants.StarknetChainId.SN_SEPOLIA,
+    id: BigInt(constants.StarknetChainId.SN_SEPOLIA),
     name: 'Sepolia',
     network: 'sepolia' as const,
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
