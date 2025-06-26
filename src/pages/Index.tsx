@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { StarknetConfig } from '@starknet-react/core';
 import { constants } from 'starknet';
@@ -11,7 +12,12 @@ const chains = [
     id: BigInt(constants.StarknetChainId.SN_MAIN),
     name: 'Mainnet',
     network: 'mainnet' as const,
-    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    nativeCurrency: { 
+      name: 'Ether', 
+      symbol: 'ETH', 
+      decimals: 18,
+      address: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
+    },
     rpcUrls: {
       default: { http: ['https://starknet-mainnet.public.blastapi.io'] },
       public: { http: ['https://starknet-mainnet.public.blastapi.io'] }
@@ -21,7 +27,12 @@ const chains = [
     id: BigInt(constants.StarknetChainId.SN_SEPOLIA),
     name: 'Sepolia',
     network: 'sepolia' as const,
-    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    nativeCurrency: { 
+      name: 'Ether', 
+      symbol: 'ETH', 
+      decimals: 18,
+      address: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
+    },
     rpcUrls: {
       default: { http: ['https://starknet-sepolia.public.blastapi.io'] },
       public: { http: ['https://starknet-sepolia.public.blastapi.io'] }
