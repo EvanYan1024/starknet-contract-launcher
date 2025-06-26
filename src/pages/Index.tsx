@@ -1,10 +1,34 @@
 
 import { useState } from 'react';
-import { StarknetConfig, mainnet, sepolia } from '@starknet-react/core';
+import { StarknetConfig } from '@starknet-react/core';
+import { constants } from 'starknet';
 import Header from '@/components/Header';
 import FileUpload from '@/components/FileUpload';
 import DeploymentPanel from '@/components/DeploymentPanel';
 import { Contract } from '@/types/contract';
+
+const chains = [
+  {
+    id: constants.StarknetChainId.SN_MAIN,
+    name: 'Mainnet',
+    network: 'mainnet' as const,
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: {
+      default: { http: ['https://starknet-mainnet.public.blastapi.io'] },
+      public: { http: ['https://starknet-mainnet.public.blastapi.io'] }
+    }
+  },
+  {
+    id: constants.StarknetChainId.SN_SEPOLIA,
+    name: 'Sepolia',
+    network: 'sepolia' as const,
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: {
+      default: { http: ['https://starknet-sepolia.public.blastapi.io'] },
+      public: { http: ['https://starknet-sepolia.public.blastapi.io'] }
+    }
+  }
+];
 
 const Index = () => {
   const [uploadedContracts, setUploadedContracts] = useState<Contract[]>([]);
@@ -20,7 +44,7 @@ const Index = () => {
 
   return (
     <StarknetConfig
-      chains={[mainnet, sepolia]}
+      chains={chains}
       provider={() => null}
     >
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
