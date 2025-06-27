@@ -1,5 +1,7 @@
 # StarkNet Contract Launcher 🚀
 
+![StarkNet Contract Launcher](./contract-launcher.png)
+
 A modern, user-friendly web application for deploying smart contracts on the StarkNet blockchain. Built with React, TypeScript, and StarkNet.js, this tool simplifies the contract deployment process with an intuitive drag-and-drop interface and intelligent data conversion.
 
 ## ✨ Features

@@ -9,20 +9,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useStarknetkitConnectModal } from "starknetkit";
-import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import {
-  Wallet,
-  LogOut,
-  Shield,
-  Github,
-  ChevronDown,
-  Copy,
-  User,
-} from "lucide-react";
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useNetwork,
+} from "@starknet-react/core";
+import { Wallet, LogOut, Github, ChevronDown, Copy, User } from "lucide-react";
 import { toast } from "sonner";
 
 const Header = () => {
   const { account, address, status } = useAccount();
+  const { chain } = useNetwork();
   const { disconnect } = useDisconnect();
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -81,7 +79,8 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-primary-foreground" />
+              {/* <Shield className="w-5 h-5 text-primary-foreground" /> */}
+              <img src="/logo.png" alt="" className="size-6" />
             </div>
             <h1 className="text-xl font-bold text-card-foreground">
               Starknet Deployer
@@ -123,9 +122,16 @@ const Header = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuLabel className="font-normal">
-                    <p className="text-sm font-medium leading-none">
-                      Wallet Connected
-                    </p>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        Wallet Connected
+                      </p>
+                      {chain && (
+                        <p className="text-xs text-muted-foreground">
+                          Network: {chain.name}
+                        </p>
+                      )}
+                    </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={copyAddress}>
