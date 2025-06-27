@@ -2,30 +2,39 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { connect, disconnect } from 'starknetkit';
-import { useAccount } from '@starknet-react/core';
+import { disconnect, useStarknetkitConnectModal } from 'starknetkit';
+import { useAccount, useConnect } from '@starknet-react/core';
 import { Wallet, LogOut, Shield } from 'lucide-react';
 
 const Header = () => {
   const { account, address, status } = useAccount();
   const [isConnecting, setIsConnecting] = useState(false);
 
-  const handleConnect = async () => {
-    try {
-      setIsConnecting(true);
-      await connect({
-        webWalletUrl: "https://web.argent.xyz",
-        argentMobileOptions: {
-          dappName: "Starknet Contract Deployer",
-          url: window.location.hostname,
-        },
-      });
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
-    } finally {
-      setIsConnecting(false);
+  // Debug logging
+  useEffect(() => {
+    console.log('Header useAccount debug:', {
+      account,
+      address,
+      status,
+      accountType: typeof account,
+      accountKeys: account ? Object.keys(account) : null
+    });
+  }, [account, address, status]);
+
+  const { connect, connectors } = useConnect();
+
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors: connectors as any
+  });
+
+  async function connectWallet() {
+    const { connector } = await starknetkitConnectModal();
+    if (!connector) {
+      return;
     }
-  };
+
+    await connect({ connector });
+  }
 
   const handleDisconnect = async () => {
     try {
@@ -72,7 +81,7 @@ const Header = () => {
               </div>
             ) : (
               <Button
-                onClick={handleConnect}
+                onClick={connectWallet}
                 disabled={isConnecting}
                 className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0"
               >

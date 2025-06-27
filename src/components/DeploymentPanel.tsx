@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { useAccount } from '@starknet-react/core';
-import { X, Rocket, FileText, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Rocket, FileText, Loader2, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
 import { Contract, DeploymentStep } from '@/types/contract';
-import { declareContract, deployContract } from '@/utils/starknet';
+import { declareContract, deployContract, convertConstructorArgs } from '@/utils/starknet';
 import { toast } from '@/hooks/use-toast';
 
 interface DeploymentPanelProps {
@@ -27,15 +27,18 @@ const DeploymentPanel = ({ contract, onClose }: DeploymentPanelProps) => {
   const [classHash, setClassHash] = useState<string>('');
   const [contractAddress, setContractAddress] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Find constructor in ABI
   const constructor = contract.abi.find((item: any) => item.type === 'constructor');
   const constructorInputs = constructor?.inputs || [];
 
+  console.log(constructor, constructorInputs, 'con')
+
   const updateStepStatus = (stepId: string, status: DeploymentStep['status'], description?: string) => {
-    setDeploymentSteps(prev => 
-      prev.map(step => 
-        step.id === stepId 
+    setDeploymentSteps(prev =>
+      prev.map(step =>
+        step.id === stepId
           ? { ...step, status, description }
           : step
       )
@@ -59,7 +62,7 @@ const DeploymentPanel = ({ contract, onClose }: DeploymentPanelProps) => {
       const result = await declareContract(account, contract.sierraData, contract.casmData);
       setClassHash(result.classHash);
       updateStepStatus('declare', 'success', `Class Hash: ${result.classHash.slice(0, 10)}...`);
-      
+
       toast({
         title: "Success",
         description: "Contract declared successfully",
@@ -91,11 +94,21 @@ const DeploymentPanel = ({ contract, onClose }: DeploymentPanelProps) => {
     updateStepStatus('deploy', 'loading', 'Deploying contract...');
 
     try {
-      const calldata = constructorArgs.map(arg => arg.trim()).filter(arg => arg);
-      const result = await deployContract(account, classHash, calldata);
+      // Filter out empty arguments
+      const filteredArgs = constructorArgs.map(arg => arg.trim()).filter(arg => arg);
+
+      // Convert arguments based on ABI types
+      let convertedCalldata: any[] = [];
+      if (filteredArgs.length > 0 && constructorInputs.length > 0) {
+        convertedCalldata = convertConstructorArgs(filteredArgs, constructorInputs);
+        console.log('Original args:', filteredArgs);
+        console.log('Converted calldata:', convertedCalldata);
+      }
+
+      const result = await deployContract(account, classHash, convertedCalldata);
       setContractAddress(result.contractAddress);
       updateStepStatus('deploy', 'success', `Address: ${result.contractAddress.slice(0, 10)}...`);
-      
+
       toast({
         title: "Success",
         description: "Contract deployed successfully",
@@ -105,7 +118,7 @@ const DeploymentPanel = ({ contract, onClose }: DeploymentPanelProps) => {
       updateStepStatus('deploy', 'error', error.message || 'Failed to deploy contract');
       toast({
         title: "Error",
-        description: "Failed to deploy contract",
+        description: error.message || "Failed to deploy contract",
         variant: "destructive",
       });
     } finally {
@@ -119,6 +132,64 @@ const DeploymentPanel = ({ contract, onClose }: DeploymentPanelProps) => {
       updated[index] = value;
       return updated;
     });
+  };
+
+  // Get placeholder text and examples for different Cairo types
+  const getInputPlaceholder = (cairoType: string): string => {
+    const normalizedType = cairoType.toLowerCase();
+
+    if (normalizedType === 'bool') {
+      return 'true or false';
+    }
+    if (normalizedType.includes('felt') || normalizedType.match(/^u(8|16|32|64|96|128)$/)) {
+      return 'e.g., 123 or 0x1a2b';
+    }
+    if (normalizedType === 'u256') {
+      return 'e.g., 123456789 or 0x1a2b3c4d';
+    }
+    if (normalizedType.includes('contractaddress') || normalizedType.includes('ethaddress')) {
+      return 'e.g., 0x1234...abcd';
+    }
+    if (normalizedType.includes('bytes31') || normalizedType === 'shortstring') {
+      return 'Short text (max 31 chars)';
+    }
+    if (normalizedType.includes('bytearray') || normalizedType === 'longstring') {
+      return 'Any length text';
+    }
+    if (normalizedType.includes('array') || normalizedType.includes('span')) {
+      return 'e.g., [1,2,3] or 1,2,3';
+    }
+    return `Enter ${cairoType}`;
+  };
+
+  const getInputHelperText = (cairoType: string): string => {
+    const normalizedType = cairoType.toLowerCase();
+
+    if (normalizedType === 'bool') {
+      return 'Enter: true, false, 1, or 0';
+    }
+    if (normalizedType.includes('felt') || normalizedType.match(/^u(8|16|32|64|96|128)$/)) {
+      return 'Numbers in decimal or hex format (0x...)';
+    }
+    if (normalizedType === 'u256') {
+      return 'Large numbers up to 256 bits';
+    }
+    if (normalizedType.includes('contractaddress')) {
+      return 'StarkNet contract address (0x...)';
+    }
+    if (normalizedType.includes('ethaddress')) {
+      return 'Ethereum address (0x...)';
+    }
+    if (normalizedType.includes('bytes31') || normalizedType === 'shortstring') {
+      return 'Text up to 31 ASCII characters';
+    }
+    if (normalizedType.includes('bytearray') || normalizedType === 'longstring') {
+      return 'Text of any length';
+    }
+    if (normalizedType.includes('array') || normalizedType.includes('span')) {
+      return 'Array format: [1,2,3] or comma-separated: 1,2,3';
+    }
+    return '';
   };
 
   const getStepIcon = (status: DeploymentStep['status']) => {
@@ -208,24 +279,62 @@ const DeploymentPanel = ({ contract, onClose }: DeploymentPanelProps) => {
         {/* Constructor Arguments */}
         {constructorInputs.length > 0 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Constructor Arguments</h3>
-            <ScrollArea className="max-h-40">
-              <div className="space-y-3 pr-4">
-                {constructorInputs.map((input: any, index: number) => (
-                  <div key={index}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">Constructor Arguments</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowHelp(!showHelp)}
+                className="text-gray-400 hover:text-white"
+              >
+                <HelpCircle className="w-4 h-4 mr-1" />
+                Help
+              </Button>
+            </div>
+
+            {/* Help Section */}
+            <Collapsible open={showHelp} onOpenChange={setShowHelp}>
+              <CollapsibleContent className="space-y-2">
+                <Card className="bg-gray-800/30 border-gray-600">
+                  <CardContent className="p-4">
+                    <h4 className="text-sm font-medium text-white mb-2">Data Format Guide</h4>
+                    <div className="text-xs text-gray-300 space-y-1">
+                      <div><strong>Numbers:</strong> 123 or 0x1a2b (hex)</div>
+                      <div><strong>Boolean:</strong> true, false, 1, or 0</div>
+                      <div><strong>Addresses:</strong> 0x1234...abcd</div>
+                      <div><strong>Short Text:</strong> Up to 31 characters</div>
+                      <div><strong>Long Text:</strong> Any length text</div>
+                      <div><strong>Arrays:</strong> [1,2,3] or 1,2,3</div>
+                      <div><strong>u256:</strong> Large numbers up to 256 bits</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CollapsibleContent>
+            </Collapsible>
+
+            <div className="space-y-3 pr-4">
+              {constructorInputs.map((input: any, index: number) => {
+                console.log(input, index, 'cc')
+                return (
+                  <div key={index} className="space-y-1">
                     <Label className="text-gray-300 text-sm">
                       {input.name} ({input.type})
                     </Label>
                     <Input
                       value={constructorArgs[index] || ''}
                       onChange={(e) => handleConstructorArgChange(index, e.target.value)}
-                      placeholder={`Enter ${input.name}`}
-                      className="bg-gray-700 border-gray-600 text-white mt-1"
+                      placeholder={getInputPlaceholder(input.type)}
+                      className="bg-gray-700 border-gray-600 text-white"
                     />
+                    {getInputHelperText(input.type) && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        {getInputHelperText(input.type)}
+                      </p>
+                    )}
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
+                )
+              })}
+            </div>
           </div>
         )}
 
