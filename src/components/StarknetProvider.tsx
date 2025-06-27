@@ -30,7 +30,7 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <StarknetConfig
-      chains={[sepolia]} // 只使用 sepolia 测试网
+      chains={[sepolia, mainnet]} // 只使用 sepolia 测试网
       connectors={connectors}
       explorer={voyager}
       autoConnect
