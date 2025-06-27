@@ -49,14 +49,14 @@ const Header = () => {
   };
 
   return (
-    <header className="border-b border-gray-800 bg-black/20 backdrop-blur-lg">
+    <header className="border-b bg-card/50 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">Starknet Deployer</span>
+            <span className="text-xl font-bold text-foreground">Starknet Deployer</span>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -64,7 +64,7 @@ const Header = () => {
               variant="outline"
               size="sm"
               onClick={() => window.open('https://github.com/EvanYan1024/starknet-contract-launcher', '_blank')}
-              className="border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white"
+              className="hover:bg-accent/10 text-muted-foreground hover:text-foreground"
             >
               <Github className="w-4 h-4 mr-2" />
               GitHub
@@ -72,18 +72,18 @@ const Header = () => {
             
             {status === 'connected' && address ? (
               <div className="flex items-center space-x-3">
-                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
-                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                <Badge variant="secondary" className="bg-accent/20 text-accent-foreground border-accent/30">
+                  <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
                   Connected
                 </Badge>
-                <span className="text-gray-300 font-mono text-sm">
+                <span className="text-muted-foreground font-mono text-sm">
                   {formatAddress(address)}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleDisconnect}
-                  className="border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white"
+                  className="hover:bg-accent/10 text-muted-foreground hover:text-foreground"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Disconnect
@@ -93,7 +93,7 @@ const Header = () => {
               <Button
                 onClick={connectWallet}
                 disabled={isConnecting}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0"
+                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white border-0"
               >
                 <Wallet className="w-4 h-4 mr-2" />
                 {isConnecting ? 'Connecting...' : 'Connect Wallet'}
