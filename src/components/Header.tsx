@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { disconnect, useStarknetkitConnectModal } from 'starknetkit';
 import { useAccount, useConnect } from '@starknet-react/core';
-import { Wallet, LogOut, Shield } from 'lucide-react';
+import { Wallet, LogOut, Shield, Github } from 'lucide-react';
 
 const Header = () => {
   const { account, address, status } = useAccount();
@@ -60,6 +60,16 @@ const Header = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open('https://github.com/EvanYan1024/starknet-contract-launcher', '_blank')}
+              className="border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white"
+            >
+              <Github className="w-4 h-4 mr-2" />
+              GitHub
+            </Button>
+            
             {status === 'connected' && address ? (
               <div className="flex items-center space-x-3">
                 <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
